@@ -5,6 +5,8 @@ import urllib3
 import json
 import wget
 import os
+import eyed3
+import eyed3.id3
 
 
 def extractdata(url, html_doc, meta_data):
@@ -23,8 +25,30 @@ def extractdata(url, html_doc, meta_data):
             meta_data['title'] = song_info['title']
             meta_data['singers'] = song_info['singers']
             meta_data['url'] = song_info['url']
+            meta_data['album'] = song_info['album']
+            meta_data['year'] = song_info['year']
             meta_data['image_url'] = song_info['image_url']
             break
+
+
+def addtags(mp3_file, meta_data):
+    """
+    :param mp3_file: File name of song downloaded.
+    :param meta_data: Contains meta data.
+    """
+    os.rename(mp3_file, meta_data['title'] + '.mp3')
+    audiofile = eyed3.load(meta_data['title'] + '.mp3')
+    audiofile.tag = eyed3.id3.Tag()
+    audiofile.tag.file_info = eyed3.id3.FileInfo(unicode(meta_data['title']) + u'.mp3')
+    audiofile.tag.title = unicode(meta_data['title'])
+    audiofile.tag.artist = unicode(meta_data['singers'])
+    # audiofile.tag.year = int(meta_data['year'])
+    audiofile.tag.album = unicode(meta_data['album'])
+
+    artwork = requests.get(meta_data['image_url'])
+
+    audiofile.tag.images.set(3, artwork.content, "image/jpeg")
+    audiofile.tag.save()
 
 
 def main():
@@ -65,7 +89,7 @@ def main():
     response = requests.post('https://www.saavn.com/api.php', headers=headers, cookies=cookies, data=data)
     download_link = json.loads(response.content)
     mp3_file = wget.download(download_link['auth_url'])
-    os.rename(mp3_file, meta_data['title'] + '.mp3')
+    addtags(mp3_file, meta_data)
 
 
 if __name__ == '__main__':
