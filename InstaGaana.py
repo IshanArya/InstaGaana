@@ -9,6 +9,15 @@ import eyed3
 import eyed3.id3
 
 
+# TODO:
+"""
+    Argv parameter try catch
+    GUI
+    Gaana.com Support
+    Song search direct
+"""
+
+
 def extractdata(url, html_doc, meta_data):
     """
     :param url: Link of the song.
@@ -26,7 +35,6 @@ def extractdata(url, html_doc, meta_data):
             meta_data['singers'] = song_info['singers']
             meta_data['url'] = song_info['url']
             meta_data['album'] = song_info['album']
-            meta_data['year'] = song_info['year']
             meta_data['image_url'] = song_info['image_url']
             break
 
@@ -42,7 +50,6 @@ def addtags(mp3_file, meta_data):
     audiofile.tag.file_info = eyed3.id3.FileInfo(unicode(meta_data['title']) + u'.mp3')
     audiofile.tag.title = unicode(meta_data['title'])
     audiofile.tag.artist = unicode(meta_data['singers'])
-    # audiofile.tag.year = int(meta_data['year'])
     audiofile.tag.album = unicode(meta_data['album'])
 
     artwork = requests.get(meta_data['image_url'])
@@ -73,23 +80,36 @@ def main():
     ra = '686893008'
 
     url = argv[1]
-    html_doc = requests.get(url=url, headers=headers)
+
+    html_doc = None
+
+    try:
+        html_doc = requests.get(url=url, headers=headers)
+    except Exception as e:
+        print "Unexpected Error: " + str(e) + "\nCheck URL."
+        exit()
 
     extractdata(url, html_doc, meta_data)
 
-    data = [
-      ('url', meta_data['url']),
-      ('ra', ra),
-      ('__call', 'song.generateAuthToken'),
-      ('_marker', 'false'),
-      ('_format', 'json'),
-      ('bitrate', '128'),
-    ]
+    if meta_data == {}:
+        print "Can't extract meta data.\nMake sure url " + url + " is complete and belongs to a song on saavn.com."
+        print "Otherwise, Report bug at LinuxSDA@gmail.com"
 
-    response = requests.post('https://www.saavn.com/api.php', headers=headers, cookies=cookies, data=data)
-    download_link = json.loads(response.content)
-    mp3_file = wget.download(download_link['auth_url'])
-    addtags(mp3_file, meta_data)
+    else:
+
+        data = [
+          ('url', meta_data['url']),
+          ('ra', ra),
+          ('__call', 'song.generateAuthToken'),
+          ('_marker', 'false'),
+          ('_format', 'json'),
+          ('bitrate', '128'),
+        ]
+
+        response = requests.post('https://www.saavn.com/api.php', headers=headers, cookies=cookies, data=data)
+        download_link = json.loads(response.content)
+        mp3_file = wget.download(download_link['auth_url'])
+        addtags(mp3_file, meta_data)
 
 
 if __name__ == '__main__':
