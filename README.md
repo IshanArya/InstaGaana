@@ -19,8 +19,6 @@
      Python InstaGaana <Saavn Song Url>
      
      
-#### Backend Algorithm and Python Script:
-##### Sumit Dhingra
+#### Backend Algorithm and Python Script: Sumit Dhingra
 
-#### Android App Design: 
-##### Shashank Mishra
+#### Android App Design: Shashank Mishra
