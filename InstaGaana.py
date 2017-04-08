@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 from sys import argv
+from random import randint
 import requests
 import urllib3
 import json
@@ -9,9 +10,10 @@ import eyed3
 import eyed3.id3
 
 
+
 # TODO:
 """
-    Argv parameter try catch
+    Argv parameter not inserted try catch
     GUI
     Gaana.com Support
     Song search direct
@@ -37,6 +39,24 @@ def extractdata(url, html_doc, meta_data):
             meta_data['album'] = song_info['album']
             meta_data['image_url'] = song_info['image_url']
             break
+
+
+def cookie_data():
+    datadump = {'0': {'cookie': {'ATC': 'Njg2OTM1Mjc1'}, 'ra': '686893008'},
+                '1': {'cookie': {'ATC': 'MTQyNTA1NDU1'}, 'ra': '142463188'},
+                '2': {'cookie': {'ATC': 'OTg4NDgxOTUz'}, 'ra': '988439686'},
+                '3': {'cookie': {'ATC': 'ODEyNDM2ODg0'}, 'ra': '812394617'},
+                '4': {'cookie': {'ATC': 'MTk3MzgyOTcxMg=='}, 'ra': '1973787445'},
+                '5': {'cookie': {'ATC': 'MTk1MzQ4NjgyMA=='}, 'ra': '1953444553'},
+                '6': {'cookie': {'ATC': 'MTg0MzgwNzU4OA=='}, 'ra': '1843765321'},
+                '7': {'cookie': {'ATC': 'MTk5NDEzNjAwOQ=='}, 'ra': '1994093742'},
+                '8': {'cookie': {'ATC': 'MTMzMTEyMjUxMA=='}, 'ra': '1331080243'},
+                '9': {'cookie': {'ATC': 'MTg2NDY2NTQ2Nw=='}, 'ra': '1864623200'},
+                '10': {'cookie': {'ATC': 'MzE1NjMzMzY='}, 'ra': '31521069'},
+                }
+
+    num = str(randint(0, 10))
+    return datadump[num]['cookie'], datadump[num]['ra']
 
 
 def addtags(mp3_file, meta_data):
@@ -76,11 +96,7 @@ def main():
     }
 
     meta_data = {}
-    cookies = {'ATC': 'Njg2OTM1Mjc1'}
-    ra = '686893008'
-
     url = argv[1]
-
     html_doc = None
 
     try:
@@ -96,6 +112,7 @@ def main():
         print "Otherwise, Report bug at LinuxSDA@gmail.com"
 
     else:
+        cookie, ra = cookie_data()
 
         data = [
           ('url', meta_data['url']),
@@ -106,7 +123,7 @@ def main():
           ('bitrate', '128'),
         ]
 
-        response = requests.post('https://www.saavn.com/api.php', headers=headers, cookies=cookies, data=data)
+        response = requests.post('https://www.saavn.com/api.php', headers=headers, cookies=cookie, data=data)
         download_link = json.loads(response.content)
         mp3_file = wget.download(download_link['auth_url'])
         addtags(mp3_file, meta_data)
