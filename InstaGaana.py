@@ -8,11 +8,11 @@ import wget
 import os
 import eyed3
 import eyed3.id3
-
-
+import argparse
 
 # TODO:
 """
+    Full album download
     Argv parameter not inserted try catch
     GUI
     Song search direct
@@ -78,25 +78,22 @@ def addtags(mp3_file, meta_data):
     audiofile.tag.save()
 
 
-def main():
-    urllib3.disable_warnings()
-
+def downloadmusic(url):
     headers = {
-        'Pragma': 'no-cache',
-        'Origin': 'http://www.saavn.com',
-        'Accept-Encoding': 'gzip, deflate, br',
-        'Accept-Language': 'en-GB,en-US;q=0.8,en;q=0.6',
-        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-        'Accept': 'application/json, text/javascript, */*; q=0.01',
-        'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
-        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) '
-                      'AppleWebKit/537.36 (KHTML, like Gecko) '
-                      'Chrome/57.0.2987.98 Safari/537.36',
-    }
+            'Pragma': 'no-cache',
+            'Origin': 'http://www.saavn.com',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Accept-Language': 'en-GB,en-US;q=0.8,en;q=0.6',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+            'Accept': 'application/json, text/javascript, */*; q=0.01',
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive',
+            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) '
+                          'AppleWebKit/537.36 (KHTML, like Gecko) '
+                          'Chrome/57.0.2987.98 Safari/537.36',
+        }
 
     meta_data = {}
-    url = argv[1]
     html_doc = None
 
     try:
@@ -116,18 +113,42 @@ def main():
         cookie, ra = cookie_data()
 
         data = [
-          ('url', meta_data['url']),
-          ('ra', ra),
-          ('__call', 'song.generateAuthToken'),
-          ('_marker', 'false'),
-          ('_format', 'json'),
-          ('bitrate', '128'),
-        ]
+              ('url', meta_data['url']),
+              ('ra', ra),
+              ('__call', 'song.generateAuthToken'),
+              ('_marker', 'false'),
+              ('_format', 'json'),
+              ('bitrate', '128'),
+                ]
 
         response = requests.post('https://www.saavn.com/api.php', headers=headers, cookies=cookie, data=data)
         download_link = json.loads(response.content)
         mp3_file = wget.download(download_link['auth_url'])
         addtags(mp3_file, meta_data)
+
+
+def main():
+    urllib3.disable_warnings()
+
+    parser = argparse.ArgumentParser(description="InstaGaana: Instant Music Downlaoder for Saavn.")
+
+    group = parser.add_mutually_exclusive_group()
+
+    group.add_argument('-s', action="store", nargs='+', help="Name of song.")
+    group.add_argument('-l', action="store", nargs=1, help="Song link.")
+
+    if len(argv) == 1:
+        parser.print_help()
+
+    result = parser.parse_args()
+
+    if result.s:
+        print "Still in development. Use -l."
+        # Show Result List and Find Link
+        # downloadmusic(put link here)
+
+    elif result.l:
+        downloadmusic(result.l[0])
 
 
 if __name__ == '__main__':
