@@ -15,8 +15,8 @@ import eyed3.id3
 """
     Argv parameter not inserted try catch
     GUI
-    Gaana.com Support
     Song search direct
+    Python3 support
 """
 
 
@@ -72,7 +72,7 @@ def addtags(mp3_file, meta_data):
     audiofile.tag.artist = unicode(meta_data['singers'])
     audiofile.tag.album = unicode(meta_data['album'])
 
-    artwork = requests.get(meta_data['image_url'])
+    artwork = requests.get(meta_data['image_url'][:-11] + '500x500.jpg')
 
     audiofile.tag.images.set(3, artwork.content, "image/jpeg")
     audiofile.tag.save()
@@ -108,7 +108,8 @@ def main():
     extractdata(url, html_doc, meta_data)
 
     if meta_data == {}:
-        print "Can't extract meta data.\nMake sure url " + url + " is complete and belongs to a song on saavn.com."
+        print "Can't extract meta data."
+        print "Make sure url " + url + " is complete and belongs to a song (not album) on saavn.com."
         print "Otherwise, Report bug at LinuxSDA@gmail.com"
 
     else:
