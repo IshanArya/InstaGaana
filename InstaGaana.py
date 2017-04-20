@@ -1,6 +1,9 @@
+#! /usr/bin/env python
+
 from bs4 import BeautifulSoup
 from sys import argv
 from random import randint
+from urllib import quote
 import requests
 import urllib3
 import json
@@ -13,10 +16,10 @@ import argparse
 # TODO:
 """
     Full album download
-    Argv parameter not inserted try catch
     GUI
     Song search direct
     Python3 support
+    Add year in tags. (issue)
 """
 
 
@@ -26,18 +29,23 @@ def extractdata(url, html_doc, meta_data):
     :param html_doc: Webpage corresponding to url
     :param meta_data: Saves relevant information.
     """
-    soup = BeautifulSoup(html_doc.content, 'html.parser')
+    soup = BeautifulSoup(html_doc, 'html.parser')
 
     song_list = map(str, soup.find_all("div", "hide song-json"))
 
     for x in song_list:
         song_info = json.loads(x[28:-6])
-        if url[22:] == song_info['perma_url'][22:]:
+        if url is None or url[22:] == song_info['perma_url'][22:]:
             meta_data['title'] = song_info['title']
             meta_data['singers'] = song_info['singers']
             meta_data['url'] = song_info['url']
             meta_data['album'] = song_info['album']
             meta_data['image_url'] = song_info['image_url']
+            meta_data['duration'] = song_info['duration']
+            meta_data['year'] = song_info['year']
+            meta_data['perma_url'] = song_info['perma_url']
+            meta_data['album_url'] = song_info['album_url']
+
             break
 
 
@@ -102,7 +110,7 @@ def downloadmusic(url):
         print "Unexpected Error: " + str(e) + "\nCheck URL."
         exit()
 
-    extractdata(url, html_doc, meta_data)
+    extractdata(url, html_doc.content, meta_data)
 
     if meta_data == {}:
         print "Can't extract meta data."
@@ -127,6 +135,20 @@ def downloadmusic(url):
         addtags(mp3_file, meta_data)
 
 
+def fetchresult(query):
+    meta_data = {}
+    index_list = []
+    page = requests.get("http://saavn.com/search/" + quote(query))
+    soup = BeautifulSoup(page.content, 'html.parser')
+    index = soup.find_all("li", "song-wrap")
+    for x in index:
+        extractdata(None, str(x), meta_data)
+        index_list.append(meta_data)
+        print meta_data
+        print "_" * 15
+    print index_list
+
+
 def main():
     urllib3.disable_warnings()
 
@@ -143,9 +165,8 @@ def main():
     result = parser.parse_args()
 
     if result.s:
-        print "Still in development. Use -l."
-        # Show Result List and Find Link
-        # downloadmusic(put link here)
+        query = ' '.join(result.s)
+        fetchresult(query)
 
     elif result.l:
         downloadmusic(result.l[0])
