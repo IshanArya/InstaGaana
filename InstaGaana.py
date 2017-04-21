@@ -34,6 +34,7 @@ def extractdata(url, html_doc, meta_data):
     song_list = map(str, soup.find_all("div", "hide song-json"))
 
     for x in song_list:
+        print x
         song_info = json.loads(x[28:-6])
         if url is None or url[22:] == song_info['perma_url'][22:]:
             meta_data['title'] = song_info['title']
@@ -136,15 +137,20 @@ def downloadmusic(url):
 
 
 def fetchresult(query):
-    meta_data = {}
     index_list = []
     page = requests.get("http://saavn.com/search/" + quote(query))
     soup = BeautifulSoup(page.content, 'html.parser')
     index = soup.find_all("li", "song-wrap")
-    for x in index:
+
+    for num in range(0, 5):
+        x = index[num]
+        meta_data = {}
         extractdata(None, str(x), meta_data)
         index_list.append(meta_data)
-        print meta_data
+        print num + 1
+        print meta_data['title'] + ", " + meta_data['album']
+        print meta_data['singers'] + ", " + meta_data['year']
+        print str(int(meta_data['duration']) / 60) + "m " + str(int(meta_data['duration']) % 60) + "secs"
         print "_" * 15
     print index_list
 
