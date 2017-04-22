@@ -34,8 +34,12 @@ def extractdata(url, html_doc, meta_data):
     song_list = map(str, soup.find_all("div", "hide song-json"))
 
     for x in song_list:
-        print x
-        song_info = json.loads(x[28:-6])
+        try:
+            song_info = json.loads(x[28:-6])
+        except ValueError:
+            print "Error Parsing: Json query contains quotes.   Bug fix in progress."
+            return
+
         if url is None or url[22:] == song_info['perma_url'][22:]:
             meta_data['title'] = song_info['title']
             meta_data['singers'] = song_info['singers']
@@ -142,17 +146,22 @@ def fetchresult(query):
     soup = BeautifulSoup(page.content, 'html.parser')
     index = soup.find_all("li", "song-wrap")
 
+    print "..." * 20
+
     for num in range(0, 5):
         x = index[num]
         meta_data = {}
+        print str(num + 1) + ".",
+
         extractdata(None, str(x), meta_data)
         index_list.append(meta_data)
-        print num + 1
-        print meta_data['title'] + ", " + meta_data['album']
-        print meta_data['singers'] + ", " + meta_data['year']
-        print str(int(meta_data['duration']) / 60) + "m " + str(int(meta_data['duration']) % 60) + "secs"
-        print "_" * 15
-    print index_list
+
+        if meta_data != {}:
+            print meta_data['title'] + ", " + meta_data['album']
+            print "   " + meta_data['singers'] + ", " + meta_data['year']
+            print "   " + str(int(meta_data['duration']) / 60) + "m " + str(int(meta_data['duration']) % 60) + "secs"
+        print "..." * 20
+    # print index_list
 
 
 def main():
