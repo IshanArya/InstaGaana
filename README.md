@@ -6,18 +6,16 @@
 ### Available as Android App, Chrome Plugin and Python Script.
 
 ---
-### Usage: Python Script
+### Python Script
+    usage: InstaGaana.py [-h] [-s S [S ...] | -l L]
 
-#### prerequisites:
-     pip install beautifulsoup4
-     pip install requests
-     pip install wget
-     pip install eyed3
-     
-     
-     cd <Path_to_InstaGaana.py>
-     Python InstaGaana <Saavn Song Url>
-     
+    InstaGaana: Instant Music Downlaoder for Saavn.
+
+    optional arguments:
+    -h, --help    show this help message and exit
+    -s S [S ...]  Name of song.
+    -l L          Song link.
+
      
 #### Backend Algorithm and Python Script: Sumit Dhingra
 
