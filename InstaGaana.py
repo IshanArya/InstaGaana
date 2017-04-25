@@ -12,6 +12,8 @@ import os
 import eyed3
 import eyed3.id3
 import argparse
+import re
+
 
 # TODO:
 """
@@ -23,22 +25,28 @@ import argparse
 """
 
 
-def extractdata(url, html_doc, meta_data):
+def extractdata(url, html_doc, meta_data_list):
     """
     :param url: Link of the song.
     :param html_doc: Webpage corresponding to url
-    :param meta_data: Saves relevant information.
+    :param meta_data_list: Saves relevant information.
     """
+
+    html_doc = re.sub(r'\(From .*?\)', "", html_doc)
+
     soup = BeautifulSoup(html_doc, 'html.parser')
 
     song_list = map(str, soup.find_all("div", "hide song-json"))
 
     for x in song_list:
+
         try:
             song_info = json.loads(x[28:-6])
-        except ValueError:
-            print "Error Parsing: Json query contains quotes.   Bug fix in progress."
-            return
+        except Exception as e:
+            print "Unexpected Error: " + str(e) + "\nReport Bug."
+            continue
+
+        meta_data = {}
 
         if url is None or url[22:] == song_info['perma_url'][22:]:
             meta_data['title'] = song_info['title']
@@ -51,7 +59,10 @@ def extractdata(url, html_doc, meta_data):
             meta_data['perma_url'] = song_info['perma_url']
             meta_data['album_url'] = song_info['album_url']
 
-            break
+            meta_data_list.append(meta_data)
+
+            if url is not None:
+                break
 
 
 def cookie_data():
@@ -72,20 +83,21 @@ def cookie_data():
     return datadump[num]['cookie'], datadump[num]['ra']
 
 
-def addtags(mp3_file, meta_data):
+def addtags(mp3_file, meta_data_list):
     """
     :param mp3_file: File name of song downloaded.
-    :param meta_data: Contains meta data.
+    :param meta_data_list: Contains meta datas.
     """
-    os.rename(mp3_file, meta_data['title'] + '.mp3')
-    audiofile = eyed3.load(meta_data['title'] + '.mp3')
-    audiofile.tag = eyed3.id3.Tag()
-    audiofile.tag.file_info = eyed3.id3.FileInfo(unicode(meta_data['title']) + u'.mp3')
-    audiofile.tag.title = unicode(meta_data['title'])
-    audiofile.tag.artist = unicode(meta_data['singers'])
-    audiofile.tag.album = unicode(meta_data['album'])
 
-    artwork = requests.get(meta_data['image_url'][:-11] + '500x500.jpg')
+    os.rename(mp3_file, meta_data_list[0]['title'] + '.mp3')
+    audiofile = eyed3.load(meta_data_list[0]['title'] + '.mp3')
+    audiofile.tag = eyed3.id3.Tag()
+    audiofile.tag.file_info = eyed3.id3.FileInfo(unicode(meta_data_list[0]['title']) + u'.mp3')
+    audiofile.tag.title = unicode(meta_data_list[0]['title'])
+    audiofile.tag.artist = unicode(meta_data_list[0]['singers'])
+    audiofile.tag.album = unicode(meta_data_list[0]['album'])
+
+    artwork = requests.get(meta_data_list[0]['image_url'][:-11] + '500x500.jpg')
 
     audiofile.tag.images.set(3, artwork.content, "image/jpeg")
     audiofile.tag.save()
@@ -106,7 +118,7 @@ def downloadmusic(url):
                           'Chrome/57.0.2987.98 Safari/537.36',
         }
 
-    meta_data = {}
+    meta_data_list = []
     html_doc = None
 
     try:
@@ -115,9 +127,9 @@ def downloadmusic(url):
         print "Unexpected Error: " + str(e) + "\nCheck URL."
         exit()
 
-    extractdata(url, html_doc.content, meta_data)
+    extractdata(url, html_doc.content, meta_data_list)
 
-    if meta_data == {}:
+    if meta_data_list[0] == {}:
         print "Can't extract meta data."
         print "Make sure url " + url + " is complete and belongs to a song (not album) on saavn.com."
         print "Otherwise, Report bug at LinuxSDA@gmail.com"
@@ -126,7 +138,7 @@ def downloadmusic(url):
         cookie, ra = cookie_data()
 
         data = [
-              ('url', meta_data['url']),
+              ('url', meta_data_list[0]['url']),
               ('ra', ra),
               ('__call', 'song.generateAuthToken'),
               ('_marker', 'false'),
@@ -137,31 +149,44 @@ def downloadmusic(url):
         response = requests.post('https://www.saavn.com/api.php', headers=headers, cookies=cookie, data=data)
         download_link = json.loads(response.content)
         mp3_file = wget.download(download_link['auth_url'])
-        addtags(mp3_file, meta_data)
+        addtags(mp3_file, meta_data_list)
 
 
 def fetchresult(query):
-    index_list = []
-    page = requests.get("http://saavn.com/search/" + quote(query))
-    soup = BeautifulSoup(page.content, 'html.parser')
-    index = soup.find_all("li", "song-wrap")
+
+    headers = {
+        'Pragma': 'no-cache',
+        'Accept-Encoding': 'gzip, deflate, sdch',
+        'Accept-Language': 'en-GB,en-US;q=0.8,en;q=0.6',
+        'Upgrade-Insecure-Requests': '1',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'Connection': 'keep-alive',
+        'Cache-Control': 'no-cache',
+        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) '
+                      'AppleWebKit/537.36 (KHTML, like Gecko) '
+                      'Chrome/57.0.2987.98 Safari/537.36',
+    }
+
+    meta_data_list = []
+    url = "http://saavn.com/search/" + quote(query)
+    page = None
+
+    try:
+        page = requests.get(url=url, headers=headers)
+    except Exception as e:
+        print "Unexpected Error: " + str(e) + "\nTry Later."
+        exit()
 
     print "..." * 20
+    extractdata(None, page.content, meta_data_list)
 
-    for num in range(0, 5):
-        x = index[num]
-        meta_data = {}
-        print str(num + 1) + ".",
-
-        extractdata(None, str(x), meta_data)
-        index_list.append(meta_data)
-
-        if meta_data != {}:
-            print meta_data['title'] + ", " + meta_data['album']
-            print "   " + meta_data['singers'] + ", " + meta_data['year']
-            print "   " + str(int(meta_data['duration']) / 60) + "m " + str(int(meta_data['duration']) % 60) + "secs"
+    for x in range(0, len(meta_data_list)):
+        print str(x+1) + ".",
+        print meta_data_list[x]['title'] + ", " + meta_data_list[x]['album']
+        print "   " + meta_data_list[x]['singers'] + ", " + meta_data_list[x]['year']
+        print "   " + str(int(meta_data_list[x]['duration']) / 60) + "m ",
+        print str(int(meta_data_list[x]['duration']) % 60) + "secs"
         print "..." * 20
-    # print index_list
 
 
 def main():
