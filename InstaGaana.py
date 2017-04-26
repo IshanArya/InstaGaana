@@ -31,7 +31,7 @@ def extractdata(url, html_doc, meta_data_list):
     :param html_doc: Webpage corresponding to url
     :param meta_data_list: Saves relevant information.
     """
-
+    count = 0
     html_doc = re.sub(r'\(From .*?\)', "", html_doc)
 
     soup = BeautifulSoup(html_doc, 'html.parser')
@@ -39,7 +39,7 @@ def extractdata(url, html_doc, meta_data_list):
     song_list = map(str, soup.find_all("div", "hide song-json"))
 
     for x in song_list:
-
+        count += 1
         try:
             song_info = json.loads(x[28:-6])
         except Exception as e:
@@ -61,7 +61,7 @@ def extractdata(url, html_doc, meta_data_list):
 
             meta_data_list.append(meta_data)
 
-            if url is not None:
+            if url is not None or count == 5:
                 break
 
 
@@ -103,7 +103,7 @@ def addtags(mp3_file, meta_data_list):
     audiofile.tag.save()
 
 
-def downloadmusic(url):
+def downloadmusic(url, meta_data_list):
     headers = {
             'Pragma': 'no-cache',
             'Origin': 'http://www.saavn.com',
@@ -118,38 +118,50 @@ def downloadmusic(url):
                           'Chrome/57.0.2987.98 Safari/537.36',
         }
 
-    meta_data_list = []
-    html_doc = None
+    if not meta_data_list:
+
+        html_doc = None
+
+        try:
+            html_doc = requests.get(url=url, headers=headers)
+        except Exception as e:
+            print "Unexpected Error: " + str(e) + "\nCheck URL."
+            exit()
+
+        extractdata(url, html_doc.content, meta_data_list)
+
+        if meta_data_list[0] == {}:
+            print "Can't extract meta data."
+            print "Make sure url " + url + " is complete and belongs to a song (not album) on saavn.com."
+            print "Otherwise, Report bug at LinuxSDA@gmail.com"
+            exit()
+
+    cookie, ra = cookie_data()
+
+    data = [
+          ('url', meta_data_list[0]['url']),
+          ('ra', ra),
+          ('__call', 'song.generateAuthToken'),
+          ('_marker', 'false'),
+          ('_format', 'json'),
+          ('bitrate', '128'),
+            ]
+
+    response = requests.post('https://www.saavn.com/api.php', headers=headers, cookies=cookie, data=data)
+    download_link = json.loads(response.content)
+
+    mp3_file = None
 
     try:
-        html_doc = requests.get(url=url, headers=headers)
+        mp3_file = wget.download(download_link['auth_url'])
+    except IOError:
+        print "This track on Saavn is either disabled, greyed out, or not available."
+        exit()
     except Exception as e:
-        print "Unexpected Error: " + str(e) + "\nCheck URL."
+        print "Unexpected Error: " + str(e) + "\nTry Again or Report Bug."
         exit()
 
-    extractdata(url, html_doc.content, meta_data_list)
-
-    if meta_data_list[0] == {}:
-        print "Can't extract meta data."
-        print "Make sure url " + url + " is complete and belongs to a song (not album) on saavn.com."
-        print "Otherwise, Report bug at LinuxSDA@gmail.com"
-
-    else:
-        cookie, ra = cookie_data()
-
-        data = [
-              ('url', meta_data_list[0]['url']),
-              ('ra', ra),
-              ('__call', 'song.generateAuthToken'),
-              ('_marker', 'false'),
-              ('_format', 'json'),
-              ('bitrate', '128'),
-                ]
-
-        response = requests.post('https://www.saavn.com/api.php', headers=headers, cookies=cookie, data=data)
-        download_link = json.loads(response.content)
-        mp3_file = wget.download(download_link['auth_url'])
-        addtags(mp3_file, meta_data_list)
+    addtags(mp3_file, meta_data_list)
 
 
 def fetchresult(query):
@@ -177,16 +189,33 @@ def fetchresult(query):
         print "Unexpected Error: " + str(e) + "\nTry Later."
         exit()
 
-    print "..." * 20
+    print "..." * 25
     extractdata(None, page.content, meta_data_list)
 
-    for x in range(0, len(meta_data_list)):
+    for x in range(0, min(5, len(meta_data_list))):
         print str(x+1) + ".",
         print meta_data_list[x]['title'] + ", " + meta_data_list[x]['album']
         print "   " + meta_data_list[x]['singers'] + ", " + meta_data_list[x]['year']
-        print "   " + str(int(meta_data_list[x]['duration']) / 60) + "m ",
+        print "   " + str(int(meta_data_list[x]['duration']) / 60) + "m",
         print str(int(meta_data_list[x]['duration']) % 60) + "secs"
-        print "..." * 20
+        print "..." * 25
+
+    choice = None
+
+    try:
+        choice = int(raw_input("Download result[1-5], 0 for none: "))
+    except ValueError:
+        print "Invalid response. Adios!"
+        exit()
+
+    if choice == 0:
+        print "Invalid response. Adios!"
+        exit()
+    elif 0 < choice <= 5:
+        return meta_data_list[choice-1:choice]
+    else:
+        print "Invalid response. Adios!"
+        exit()
 
 
 def main():
@@ -206,10 +235,12 @@ def main():
 
     if result.s:
         query = ' '.join(result.s)
-        fetchresult(query)
+        meta_data_list = fetchresult(query)
+        link = meta_data_list[0]['perma_url']
+        downloadmusic(link, meta_data_list)
 
     elif result.l:
-        downloadmusic(result.l[0])
+        downloadmusic(result.l[0], [])
 
 
 if __name__ == '__main__':
