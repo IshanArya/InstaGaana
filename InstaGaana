@@ -18,8 +18,8 @@ import re
 # TODO:
 """
     Full album download
+    Pip install
     GUI
-    Song search direct
     Python3 support
     Add year in tags. (issue)
 """
@@ -209,7 +209,7 @@ def fetchresult(query):
         exit()
 
     if choice == 0:
-        print "Invalid response. Adios!"
+        print "Adios!"
         exit()
     elif 0 < choice <= 5:
         return meta_data_list[choice-1:choice]
