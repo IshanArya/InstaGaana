@@ -18,7 +18,7 @@ import re
 # TODO:
 """
     Full album download
-    Pip install
+    Playlist download
     GUI
     Python3 support
     Add year in tags. (issue)
@@ -221,7 +221,7 @@ def fetchresult(query):
 def main():
     urllib3.disable_warnings()
 
-    parser = argparse.ArgumentParser(description="InstaGaana: Instant Music Downlaoder for Saavn.")
+    parser = argparse.ArgumentParser(description="InstaGaana: Instant Music Downloader for Saavn.")
 
     group = parser.add_mutually_exclusive_group()
 
@@ -230,6 +230,8 @@ def main():
 
     if len(argv) == 1:
         parser.print_help()
+        print "\nDeveloper: Sumit Dhingra,",
+        print "https://github.com/LinuxSDA/"
 
     result = parser.parse_args()
 
