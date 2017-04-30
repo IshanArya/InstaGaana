@@ -1,22 +1,31 @@
 # InstaGaana
 
-![Imgur](http://i.imgur.com/opFLFOW.png?3)
+![Imgur](http://i.imgur.com/opFLFOW.png?5)
 ## A Music Downloader for Saavn
 
-### Available as Android App, Chrome Plugin and Python Script.
+### Available as Android App and Python Script.
 
 ---
-### Python Script
-    usage: InstaGaana.py [-h] [-s S [S ...] | -l L]
+### Installation:
+    pip install InstaGaana
 
-    InstaGaana: Instant Music Downlaoder for Saavn.
+### InstaGaana:
+    $InstaGaana 
+    usage: InstaGaana [-h] [-s S [S ...] | -l L]
+
+    InstaGaana: Instant Music Downloader for Saavn.
 
     optional arguments:
     -h, --help    show this help message and exit
     -s S [S ...]  Name of song.
     -l L          Song link.
 
-     
+    Developer: Sumit Dhingra, https://github.com/LinuxSDA/
+
+---
+
+
+
 #### Backend Algorithm and Python Script: Sumit Dhingra
 
 #### Android App Design: Shashank Mishra
