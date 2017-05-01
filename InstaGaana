@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 from bs4 import BeautifulSoup
-from sys import argv
+from sys import argv, platform
 from random import randint
 from urllib import quote
 import requests
@@ -13,7 +13,6 @@ import eyed3
 import eyed3.id3
 import argparse
 import re
-
 
 # TODO:
 """
@@ -89,10 +88,26 @@ def addtags(mp3_file, meta_data_list):
     :param meta_data_list: Contains meta datas.
     """
 
-    os.rename(mp3_file, meta_data_list[0]['title'] + '.mp3')
-    audiofile = eyed3.load(meta_data_list[0]['title'] + '.mp3')
+    path = ''
+
+    if platform.startswith('win'):
+        path = os.path.expanduser('~')+'\\Music\\'
+
+    elif platform.startswith('linux'):
+        path = os.path.expanduser('~') + '/Music/'
+
+    filename = path + meta_data_list[0]['title'] + '.mp3'
+
+    try:
+        os.rename(mp3_file, filename)
+    except OSError:
+        print "Replacing duplicate file..."
+        os.remove(filename)
+        os.rename(mp3_file, filename)
+
+    audiofile = eyed3.load(filename)
     audiofile.tag = eyed3.id3.Tag()
-    audiofile.tag.file_info = eyed3.id3.FileInfo(unicode(meta_data_list[0]['title']) + u'.mp3')
+    audiofile.tag.file_info = eyed3.id3.FileInfo(unicode(filename))
     audiofile.tag.title = unicode(meta_data_list[0]['title'])
     audiofile.tag.artist = unicode(meta_data_list[0]['singers'])
     audiofile.tag.album = unicode(meta_data_list[0]['album'])
@@ -152,8 +167,17 @@ def downloadmusic(url, meta_data_list):
 
     mp3_file = None
 
+    if platform.startswith('win'):
+        path = os.path.expanduser('~')+'\\Music'
+
+    elif platform.startswith('linux'):
+        path = os.path.expanduser('~') + '/Music'
+
+    else:
+        path = ''                                    # Current Directory
+
     try:
-        mp3_file = wget.download(download_link['auth_url'])
+        mp3_file = wget.download(download_link['auth_url'], path)
     except IOError:
         print "This track on Saavn is either disabled, greyed out, or not available."
         exit()
