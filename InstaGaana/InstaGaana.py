@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python2
 
 from bs4 import BeautifulSoup
 from sys import argv, platform
@@ -270,8 +270,4 @@ def main():
 
 
 if __name__ == '__main__':
-    try:
-        main()
-    except KeyboardInterrupt:
-        print("Process interrupted.")
-exit()
+    main()
