@@ -1,7 +1,8 @@
 # InstaGaana
 
 ![Imgur](http://i.imgur.com/opFLFOW.png?5)
-## A Music Downloader for Saavn
+## A Music Downloader for Saavn.
+#### InstaGaana download best quality music (128kbps) offered by Saavn along with tags (Title, Artists, Album and Artwork).
 
 ### Available as Android App and Python Script.
 
@@ -9,6 +10,11 @@
 ### Installation:
     pip install InstaGaana
 
+To Upgrade: 
+
+    pip install InstaGaana --upgrade
+
+---
 ### InstaGaana:
     $InstaGaana 
     usage: InstaGaana [-h] [-s S [S ...] | -l L]
@@ -23,12 +29,27 @@
     Developer: Sumit Dhingra, https://github.com/LinuxSDA/
 
 ---
+### Destination:
+**Linux:**
 
+    /home/username/Music
+    
+**Windows:**
+
+    C:\users\username\Music
+    
+**OS X:**
+
+    Current directory
+
+---
+### Note: 
+**Users (particularly debian users) with python version <= 2.7.9 may receive SNIMissingWarning and InsecurePlatformWarning. You may ignore them or follow this [thread](http://stackoverflow.com/a/29099439)**
 
 
 #### Backend Algorithm and Python Script: Sumit Dhingra
 
-#### Android App Design: Shashank Mishra
+#### Android App: [Shashank Mishra](https://github.com/shkcodes)
 
 ### Disclaimer
 
