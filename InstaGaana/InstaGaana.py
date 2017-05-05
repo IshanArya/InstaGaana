@@ -1,11 +1,10 @@
-#! /usr/bin/env python2
+#! /usr/bin/env python
 
+from __future__ import print_function
 from bs4 import BeautifulSoup
-from sys import argv, platform
+from sys import argv, platform, version_info
 from random import randint
-from urllib import quote
 import requests
-import urllib3
 import json
 import wget
 import os
@@ -14,13 +13,20 @@ import eyed3.id3
 import argparse
 import re
 
+
+if version_info > (3, 0):
+    from urllib.parse import quote
+    unicode = str
+    raw_input = input
+
+else:
+    from urllib import quote
+    import urllib3
+
 # TODO:
 """
     Full album download
     Playlist download
-    GUI
-    Python3 support
-    Add year in tags. (issue)
 """
 
 
@@ -31,7 +37,7 @@ def extractdata(url, html_doc, meta_data_list):
     :param meta_data_list: Saves relevant information.
     """
     count = 0
-    html_doc = re.sub(r'\(From .*?\)', "", html_doc)
+    html_doc = re.sub(r'\(From .*?\)', "", html_doc.decode('utf-8'))
 
     soup = BeautifulSoup(html_doc, 'html.parser')
 
@@ -42,7 +48,7 @@ def extractdata(url, html_doc, meta_data_list):
         try:
             song_info = json.loads(x[28:-6])
         except Exception as e:
-            print "Unexpected Error: " + str(e) + "\nReport Bug."
+            print("Unexpected Error: " + str(e) + "\nReport Bug.")
             continue
 
         meta_data = {}
@@ -101,7 +107,7 @@ def addtags(mp3_file, meta_data_list):
     try:
         os.rename(mp3_file, filename)
     except OSError:
-        print "Replacing duplicate file..."
+        print("Replacing duplicate file...")
         os.remove(filename)
         os.rename(mp3_file, filename)
 
@@ -111,7 +117,7 @@ def addtags(mp3_file, meta_data_list):
     audiofile.tag.title = unicode(meta_data_list[0]['title'])
     audiofile.tag.artist = unicode(meta_data_list[0]['singers'])
     audiofile.tag.album = unicode(meta_data_list[0]['album'])
-
+    audiofile.tag.recording_date = unicode(meta_data_list[0]['year'])
     artwork = requests.get(meta_data_list[0]['image_url'][:-11] + '500x500.jpg')
 
     audiofile.tag.images.set(3, artwork.content, "image/jpeg")
@@ -140,15 +146,15 @@ def downloadmusic(url, meta_data_list):
         try:
             html_doc = requests.get(url=url, headers=headers)
         except Exception as e:
-            print "Unexpected Error: " + str(e) + "\nCheck URL."
+            print("Unexpected Error: " + str(e) + "\nCheck URL.")
             exit()
 
         extractdata(url, html_doc.content, meta_data_list)
 
         if meta_data_list[0] == {}:
-            print "Can't extract meta data."
-            print "Make sure url " + url + " is complete and belongs to a song (not album) on saavn.com."
-            print "Otherwise, Report bug at LinuxSDA@gmail.com"
+            print("Can't extract meta data.")
+            print("Make sure url " + url + " is complete and belongs to a song (not album) on saavn.com.")
+            print("Otherwise, Report bug at LinuxSDA@gmail.com")
             exit()
 
     cookie, ra = cookie_data()
@@ -163,7 +169,7 @@ def downloadmusic(url, meta_data_list):
             ]
 
     response = requests.post('https://www.saavn.com/api.php', headers=headers, cookies=cookie, data=data)
-    download_link = json.loads(response.content)
+    download_link = json.loads(response.content.decode('utf-8'))
 
     mp3_file = None
 
@@ -179,13 +185,17 @@ def downloadmusic(url, meta_data_list):
     try:
         mp3_file = wget.download(download_link['auth_url'], path)
     except IOError:
-        print "This track on Saavn is either disabled, greyed out, or not available."
+        print("This track on Saavn is either disabled, greyed out, or not available.")
         exit()
     except Exception as e:
-        print "Unexpected Error: " + str(e) + "\nTry Again or Report Bug."
+        print("Unexpected Error: " + str(e) + "\nTry Again or Report Bug.")
         exit()
 
-    addtags(mp3_file, meta_data_list)
+    try:
+        print("\n")
+        addtags(mp3_file, meta_data_list)
+    except TypeError:
+        print("EyeD3 installed is not compatible with Python3. Can't add tags.")
 
 
 def fetchresult(query):
@@ -210,40 +220,42 @@ def fetchresult(query):
     try:
         page = requests.get(url=url, headers=headers)
     except Exception as e:
-        print "Unexpected Error: " + str(e) + "\nTry Later."
+        print("Unexpected Error: " + str(e) + "\nTry Later.")
         exit()
 
-    print "..." * 25
+    print("..." * 25)
     extractdata(None, page.content, meta_data_list)
 
     for x in range(0, min(5, len(meta_data_list))):
-        print str(x+1) + ".",
-        print meta_data_list[x]['title'] + ", " + meta_data_list[x]['album']
-        print "   " + meta_data_list[x]['singers'] + ", " + meta_data_list[x]['year']
-        print "   " + str(int(meta_data_list[x]['duration']) / 60) + "m",
-        print str(int(meta_data_list[x]['duration']) % 60) + "secs"
-        print "..." * 25
+        print(str(x+1) + ". ", end='')
+        print(meta_data_list[x]['title'] + ", " + meta_data_list[x]['album'])
+        print("   " + meta_data_list[x]['singers'] + ", " + meta_data_list[x]['year'])
+        print("   " + str(int(int(meta_data_list[x]['duration']) / 60)) + "m ", end='')
+        print(str(int(meta_data_list[x]['duration']) % 60) + "secs")
+        print("..." * 25)
 
     choice = None
 
     try:
         choice = int(raw_input("Download result[1-5], 0 for none: "))
     except ValueError:
-        print "Invalid response. Adios!"
+        print("Invalid response. Adios!")
         exit()
 
     if choice == 0:
-        print "Adios!"
+        print("Adios!")
         exit()
     elif 0 < choice <= 5:
         return meta_data_list[choice-1:choice]
     else:
-        print "Invalid response. Adios!"
+        print("Invalid response. Adios!")
         exit()
 
 
 def main():
-    urllib3.disable_warnings()
+
+    if version_info < (3, 0):
+        urllib3.disable_warnings()
 
     parser = argparse.ArgumentParser(description="InstaGaana: Instant Music Downloader for Saavn.")
 
@@ -254,8 +266,8 @@ def main():
 
     if len(argv) == 1:
         parser.print_help()
-        print "\nDeveloper: Sumit Dhingra,",
-        print "https://github.com/LinuxSDA/"
+        print("\nDeveloper: Sumit Dhingra, ", end='')
+        print("https://github.com/LinuxSDA/")
 
     result = parser.parse_args()
 
