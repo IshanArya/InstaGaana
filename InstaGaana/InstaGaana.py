@@ -195,7 +195,7 @@ def downloadmusic(url, meta_data_list):
         print("\n")
         addtags(mp3_file, meta_data_list)
     except TypeError:
-        print("EyeD3 installed is not compatible with Python3. Can't add tags.")
+        print("Can't add tags. EyeD3 version<0.8 is not compatible with Python3 or Report Bug?")
 
 
 def fetchresult(query):
