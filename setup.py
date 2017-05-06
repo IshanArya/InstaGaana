@@ -2,7 +2,7 @@ from setuptools import setup
 
 
 setup(name='InstaGaana',
-      version='1.21',
+      version='1.22',
       description='Instant music downloader for Saavn',
       url='https://github.com/LinuxSDA',
       author='Sumit Dhingra',
@@ -11,11 +11,11 @@ setup(name='InstaGaana',
       packages=['InstaGaana'],
       install_requires=[
           'BeautifulSoup4',
-          'eyed3',
+          'eyed3>=0.8.0b1',
           'requests',
           'urllib3',
           'wget',
-          'pathlib',    # eyeD3 dependency, may not install automatically.
+          'pathlib',    # eyeD3 v0.8 dependency, may not install automatically.
       ],
       dependency_links=['https://github.com/nicfit/eyeD3/tarball/master'],
       entry_points={
