@@ -8,12 +8,24 @@
 
 ---
 ### Installation:
+For Python 2.7:
+
     pip install InstaGaana
 
-To Upgrade: 
+For Python 3.4:
+
+    pip3 install InstaGaana
+    
+**To Upgrade:**
+
+For Python 2.7:
 
     pip install InstaGaana --upgrade
 
+For Python 3.4:
+
+    pip3 install InstaGaana --upgrade
+    
 ---
 ### InstaGaana:
     $InstaGaana 
@@ -47,7 +59,7 @@ To Upgrade:
 **Users (particularly debian users) with python version <= 2.7.9 may receive SNIMissingWarning and InsecurePlatformWarning. You may ignore them or follow this [thread](http://stackoverflow.com/a/29099439)**
 
 
-#### Backend Algorithm and Python Script: Sumit Dhingra
+#### Backend Algorithm and Python Script: [Sumit Dhingra](https://github.com/LinuxSDA)
 
 #### Android App: [Shashank Mishra](https://github.com/shkcodes)
 
