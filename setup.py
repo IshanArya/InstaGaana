@@ -2,7 +2,7 @@ from setuptools import setup
 
 
 setup(name='InstaGaana',
-      version='1.2',
+      version='1.21',
       description='Instant music downloader for Saavn',
       url='https://github.com/LinuxSDA',
       author='Sumit Dhingra',
@@ -15,7 +15,9 @@ setup(name='InstaGaana',
           'requests',
           'urllib3',
           'wget',
+          'pathlib',    # eyeD3 dependency, may not install automatically.
       ],
+      dependency_links=['https://github.com/nicfit/eyeD3/tarball/master'],
       entry_points={
         "console_scripts": [
             "InstaGaana = InstaGaana.InstaGaana:main"
