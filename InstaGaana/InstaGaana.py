@@ -14,7 +14,7 @@ import argparse
 import re
 
 
-if version_info > (3, 0):
+if version_info > (3, 0):                           # Version Compatibility
     from urllib.parse import quote
     unicode = str
     raw_input = input
@@ -37,7 +37,10 @@ def extractdata(url, html_doc, meta_data_list):
     :param meta_data_list: Saves relevant information.
     """
     count = 0
+
+    # Removes quotes from Title name.
     html_doc = re.sub(r'\(From .*?\)', "", html_doc.decode('utf-8'))
+    # Visit https://github.com/LinuxSDA/InstaGaana/issues/2 for more info.
 
     soup = BeautifulSoup(html_doc, 'html.parser')
 
@@ -71,6 +74,10 @@ def extractdata(url, html_doc, meta_data_list):
 
 
 def cookie_data():
+    """
+    :return: Corresponding pair of ATC and Cookies.
+    """
+
     datadump = {'0': {'cookie': {'ATC': 'Njg2OTM1Mjc1'}, 'ra': '686893008'},
                 '1': {'cookie': {'ATC': 'MTQyNTA1NDU1'}, 'ra': '142463188'},
                 '2': {'cookie': {'ATC': 'OTg4NDgxOTUz'}, 'ra': '988439686'},
@@ -94,20 +101,20 @@ def addtags(mp3_file, meta_data_list):
     :param meta_data_list: Contains meta datas.
     """
 
-    path = ''
+    path = ''                                                           # Location: Current Directory.
 
-    if platform.startswith('win'):
+    if platform.startswith('win'):                                      # Location: C:\users\username\Music
         path = os.path.expanduser('~')+'\\Music\\'
 
-    elif platform.startswith('linux'):
+    elif platform.startswith('linux'):                                  # Location: /home/username/Music
         path = os.path.expanduser('~') + '/Music/'
 
     filename = path + meta_data_list[0]['title'] + '.mp3'
 
     try:
-        os.rename(mp3_file, filename)
+        os.rename(mp3_file, filename)                                   # Rename to song name.
     except OSError:
-        print("Replacing duplicate file...")
+        print("Replacing duplicate file...")                            # Windows' Crap.
         os.remove(filename)
         os.rename(mp3_file, filename)
 
@@ -118,13 +125,20 @@ def addtags(mp3_file, meta_data_list):
     audiofile.tag.artist = unicode(meta_data_list[0]['singers'])
     audiofile.tag.album = unicode(meta_data_list[0]['album'])
     audiofile.tag.recording_date = unicode(meta_data_list[0]['year'])
-    artwork = requests.get(meta_data_list[0]['image_url'][:-11] + '500x500.jpg')
+    artwork = requests.get(meta_data_list[0]['image_url'][:-11] + '500x500.jpg')        # High resolution link.
 
     audiofile.tag.images.set(3, artwork.content, "image/jpeg")
+    audiofile.tag.save(version=(1, None, None))                                         # WMP Compatibility.
+    audiofile.tag.save(version=(2, 3, 0))                                               # WMP Album Art Compatibility.
     audiofile.tag.save()
 
 
 def downloadmusic(url, meta_data_list):
+    """
+    :param url: Either None or song url.
+    :param meta_data_list: Either empty (if song url) or Contains meta data (of selected song through query).
+    """
+
     headers = {
             'Pragma': 'no-cache',
             'Origin': 'http://www.saavn.com',
@@ -139,7 +153,7 @@ def downloadmusic(url, meta_data_list):
                           'Chrome/57.0.2987.98 Safari/537.36',
         }
 
-    if not meta_data_list:
+    if not meta_data_list:                          # Extract meta data of url provided.
 
         html_doc = None
 
@@ -173,14 +187,14 @@ def downloadmusic(url, meta_data_list):
 
     mp3_file = None
 
-    if platform.startswith('win'):
+    if platform.startswith('win'):                              # Location: C:\users\username\Music
         path = os.path.expanduser('~')+'\\Music'
 
-    elif platform.startswith('linux'):
+    elif platform.startswith('linux'):                          # Location: /home/username/Music
         path = os.path.expanduser('~') + '/Music'
 
     else:
-        path = ''                                    # Current Directory
+        path = ''                                               # Location: Current Directory
 
     try:
         mp3_file = wget.download(download_link['auth_url'], path)
@@ -199,6 +213,10 @@ def downloadmusic(url, meta_data_list):
 
 
 def fetchresult(query):
+    """
+    :param query: Query provided by user.
+    :return: Meta data of song chosen in provided list.
+    """
 
     headers = {
         'Pragma': 'no-cache',
@@ -254,8 +272,8 @@ def fetchresult(query):
 
 def main():
 
-    if version_info < (3, 0):
-        urllib3.disable_warnings()
+    if version_info < (3, 0):           # Disable InsecurePlatform and SNIMissing Warnings for python <2.7.9.
+        urllib3.disable_warnings()      # Might work.
 
     parser = argparse.ArgumentParser(description="InstaGaana: Instant Music Downloader for Saavn.")
 
