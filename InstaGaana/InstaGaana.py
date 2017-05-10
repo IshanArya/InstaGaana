@@ -179,7 +179,7 @@ def downloadmusic(url, meta_data_list):
           ('__call', 'song.generateAuthToken'),
           ('_marker', 'false'),
           ('_format', 'json'),
-          ('bitrate', '128'),
+          ('bitrate', '320'),
             ]
 
     response = requests.post('https://www.saavn.com/api.php', headers=headers, cookies=cookie, data=data)
