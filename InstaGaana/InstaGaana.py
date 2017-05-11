@@ -133,6 +133,22 @@ def addtags(mp3_file, meta_data_list):
     audiofile.tag.save()
 
 
+def sendrequest(headers, meta_data_list, quality):
+    cookie, ra = cookie_data()
+
+    data = [
+          ('url', meta_data_list[0]['url']),
+          ('ra', ra),
+          ('__call', 'song.generateAuthToken'),
+          ('_marker', 'false'),
+          ('_format', 'json'),
+          ('bitrate', quality),
+            ]
+
+    response = requests.post('https://www.saavn.com/api.php', headers=headers, cookies=cookie, data=data)
+    return json.loads(response.content.decode('utf-8'))
+
+
 def downloadmusic(url, meta_data_list):
     """
     :param url: Either None or song url.
@@ -171,20 +187,6 @@ def downloadmusic(url, meta_data_list):
             print("Otherwise, Report bug at LinuxSDA@gmail.com")
             exit()
 
-    cookie, ra = cookie_data()
-
-    data = [
-          ('url', meta_data_list[0]['url']),
-          ('ra', ra),
-          ('__call', 'song.generateAuthToken'),
-          ('_marker', 'false'),
-          ('_format', 'json'),
-          ('bitrate', '320'),
-            ]
-
-    response = requests.post('https://www.saavn.com/api.php', headers=headers, cookies=cookie, data=data)
-    download_link = json.loads(response.content.decode('utf-8'))
-
     mp3_file = None
 
     if platform.startswith('win'):                              # Location: C:\users\username\Music
@@ -196,14 +198,21 @@ def downloadmusic(url, meta_data_list):
     else:
         path = ''                                               # Location: Current Directory
 
+    download_link = sendrequest(headers, meta_data_list, '320')
+
     try:
         mp3_file = wget.download(download_link['auth_url'], path)
+
     except IOError:
-        print("This track on Saavn is either disabled, greyed out, or not available.")
-        exit()
-    except Exception as e:
-        print("Unexpected Error: " + str(e) + "\nTry Again or Report Bug.")
-        exit()
+
+        try:
+            print("This track is not available in 320Kbps.")
+            download_link = sendrequest(headers, meta_data_list, '128')
+            mp3_file = wget.download(download_link['auth_url'], path)
+
+        except IOError:
+            print("This track on Saavn is either disabled, greyed out, or not available.")
+            exit()
 
     try:
         print("\n")
