@@ -2,7 +2,7 @@ from setuptools import setup
 
 
 setup(name='InstaGaana',
-      version='1.3',
+      version='1.3.4',
       description='Instant music downloader for Saavn',
       url='https://github.com/LinuxSDA',
       author='Sumit Dhingra',
