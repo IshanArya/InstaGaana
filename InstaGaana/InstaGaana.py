@@ -14,6 +14,10 @@ import argparse
 import re
 
 
+# I dedicate all this code, all my work, to friends and family, who will
+# have to support me for lifetime once it gets released into the public.
+
+
 if version_info > (3, 0):                           # Version Compatibility
     from urllib.parse import quote
     unicode = str
@@ -75,8 +79,10 @@ def extractdata(url, html_doc, meta_data_list):
 
 def cookie_data():
     """
-    :return: Corresponding pair of ATC and Cookies.
+    :return: Random pair of ATC and Cookies.
     """
+
+    # Cookies and data form values taken from saavn's website.
 
     datadump = {'0': {'cookie': {'ATC': 'Njg2OTM1Mjc1'}, 'ra': '686893008'},
                 '1': {'cookie': {'ATC': 'MTQyNTA1NDU1'}, 'ra': '142463188'},
@@ -134,6 +140,13 @@ def addtags(mp3_file, meta_data_list):
 
 
 def sendrequest(headers, meta_data_list, quality):
+    """
+    :param headers: headers for sending requests.
+    :param meta_data_list: meta data list
+    :param quality: 320Kbps or 128Kbps
+    :return: json content
+    """
+
     cookie, ra = cookie_data()
 
     data = [
@@ -282,7 +295,7 @@ def fetchresult(query):
 def main():
 
     if version_info < (3, 0):           # Disable InsecurePlatform and SNIMissing Warnings for python <2.7.9.
-        urllib3.disable_warnings()      # Might work.
+        urllib3.disable_warnings()      # Might not work. Read "Readme.md" for fix.
 
     parser = argparse.ArgumentParser(description="InstaGaana: Instant Music Downloader for Saavn.")
 
