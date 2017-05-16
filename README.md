@@ -64,7 +64,9 @@ For Python 3.4:
 
 #### Android App: [Shashank Mishra](https://github.com/shkcodes)
 
-### Download the Android app here: https://github.com/LinuxSDA/InstaGaana/releases/download/1.3.4/InstaGaana_1.3.4.apk
+---
+
+### Download the Android app [here](https://github.com/LinuxSDA/InstaGaana/releases/download/1.3.4/InstaGaana_1.3.4.apk) or Go to release section for latest version.
 
 If anyone wants we can give the android code. It's basically the same code but in Java using JSoup.
 
