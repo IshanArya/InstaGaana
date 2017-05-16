@@ -60,12 +60,13 @@ For Python 3.4:
 
 ---
 
-##### Download the apk here: https://github.com/LinuxSDA/InstaGaana/releases/download/1.3.4/InstaGaana_1.3.4.apk
-
-
 #### Backend Algorithm and Python Script: [Sumit Dhingra](https://github.com/LinuxSDA)
 
 #### Android App: [Shashank Mishra](https://github.com/shkcodes)
+
+### Download the Android app here: https://github.com/LinuxSDA/InstaGaana/releases/download/1.3.4/InstaGaana_1.3.4.apk
+
+If anyone wants we can give the android code. It's basically the same code but in Java using JSoup.
 
 ### Disclaimer
 
