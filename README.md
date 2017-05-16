@@ -2,9 +2,9 @@
 
 ![Imgur](http://i.imgur.com/opFLFOW.png?5)
 ## A Music Downloader for Saavn.
-#### InstaGaana downloads best quality music (320kbps) offered by Saavn along with tags (Title, Artists, Album and Artwork).
+#### InstaGaana downloads best quality music (320kbps) offered by Saavn along with tags (title, artists, album and artwork).
 
-### Available as Android App and Python Script.
+### Available as Android app and Python script.
 
 ---
 ### Installation:
@@ -57,6 +57,10 @@ For Python 3.4:
 ---
 ### Note: 
 **Users (particularly debian users) with python version <= 2.7.9 may receive SNIMissingWarning and InsecurePlatformWarning. You may ignore them or follow this [thread](http://stackoverflow.com/a/29099439)**
+
+---
+
+##### Download the apk here: https://github.com/LinuxSDA/InstaGaana/releases/download/1.3.4/InstaGaana_1.3.4.apk
 
 
 #### Backend Algorithm and Python Script: [Sumit Dhingra](https://github.com/LinuxSDA)
