@@ -7,8 +7,13 @@
 ### Available as Android app and Python script.
 
 ---
+### Note: 
+**Script works for Python version >= 2.7.9**
+---
+
+---
 ### Installation:
-For Python 2.7:
+For Python 2.7.9 and above:
 
     pip install InstaGaana
 
@@ -18,7 +23,7 @@ For Python 3.4:
     
 **To Upgrade:**
 
-For Python 2.7:
+For Python 2.7.9 and above:
 
     pip install InstaGaana --upgrade
 
@@ -54,11 +59,6 @@ For Python 3.4:
 
     Current directory
 
----
-### Note: 
-**Users (particularly debian users) with python version <= 2.7.9 may receive SNIMissingWarning and InsecurePlatformWarning. You may ignore them or follow this [thread](http://stackoverflow.com/a/29099439)**
-
----
 
 #### Backend Algorithm and Python Script: [Sumit Dhingra](https://github.com/LinuxSDA)
 
@@ -66,9 +66,10 @@ For Python 3.4:
 
 ---
 
-### Download the Android app [here](https://github.com/LinuxSDA/InstaGaana/releases/download/1.3.4/InstaGaana_1.3.4.apk) or Go to release section for latest version.
+### Download the Android app [here](https://github.com/LinuxSDA/InstaGaana/releases/download/1.3.5/InstaGaana_v1.3.5.apk) or Go to release section for latest version.
 
-If anyone wants we can give the android code. It's basically the same code but in Java using JSoup.
+Android repo available [here](https://github.com/shkcodes/InstaGaana-Android)
+
 
 ### Disclaimer
 
