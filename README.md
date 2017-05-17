@@ -8,7 +8,7 @@
 
 ---
 ### Note: 
-**Script works for Python version >= 2.7.9**
+**Script works for Python version >= 2.7.9 and python3**
 ---
 
 ---
