@@ -13,7 +13,6 @@ import eyed3.id3
 import argparse
 import re
 
-
 # I dedicate all this code, all my work, to friends and family, who will
 # have to support me for lifetime once it gets released into the public.
 
@@ -60,7 +59,7 @@ def extractdata(url, html_doc, meta_data_list):
 
         meta_data = {}
 
-        if url is None or url[22:] == song_info['perma_url'][22:]:
+        if url is None or url[23:] == song_info['perma_url'][23:]:
             meta_data['title'] = song_info['title']
             meta_data['singers'] = song_info['singers']
             meta_data['url'] = song_info['url']
@@ -73,7 +72,7 @@ def extractdata(url, html_doc, meta_data_list):
 
             meta_data_list.append(meta_data)
 
-            if url is not None or count == 5:
+            if url is not None or count == 6:
                 break
 
 
@@ -133,7 +132,11 @@ def addtags(mp3_file, meta_data_list):
     audiofile.tag.recording_date = unicode(meta_data_list[0]['year'])
     artwork = requests.get(meta_data_list[0]['image_url'][:-11] + '500x500.jpg')        # High resolution link.
 
-    audiofile.tag.images.set(3, artwork.content, "image/jpeg")
+    if artwork.status_code == 200:
+        audiofile.tag.images.set(3, artwork.content, "image/jpeg")
+    else:
+        print("Artwork not available for this song.")
+
     audiofile.tag.save(version=(1, None, None))                                         # WMP Compatibility.
     audiofile.tag.save(version=(2, 3, 0))                                               # WMP Album Art Compatibility.
     audiofile.tag.save()
@@ -194,9 +197,9 @@ def downloadmusic(url, meta_data_list):
 
         extractdata(url, html_doc.content, meta_data_list)
 
-        if meta_data_list[0] == {}:
+        if meta_data_list == [] or meta_data_list[0] == {}:
             print("Can't extract meta data.")
-            print("Make sure url " + url + " is complete and belongs to a song (not album) on saavn.com.")
+            print("Make sure the url is complete and belongs to a song (not album) on saavn.com.")
             print("Otherwise, Report bug at LinuxSDA@gmail.com")
             exit()
 
@@ -217,7 +220,6 @@ def downloadmusic(url, meta_data_list):
         mp3_file = wget.download(download_link['auth_url'], path)
 
     except IOError:
-
         try:
             print("This track is not available in 320Kbps.")
             download_link = sendrequest(headers, meta_data_list, '128')
@@ -266,7 +268,7 @@ def fetchresult(query):
     print("..." * 25)
     extractdata(None, page.content, meta_data_list)
 
-    for x in range(0, min(5, len(meta_data_list))):
+    for x in range(0, min(6, len(meta_data_list))):
         print(str(x+1) + ". ", end='')
         print(meta_data_list[x]['title'] + ", " + meta_data_list[x]['album'])
         print("   " + meta_data_list[x]['singers'] + ", " + meta_data_list[x]['year'])
@@ -277,7 +279,7 @@ def fetchresult(query):
     choice = None
 
     try:
-        choice = int(raw_input("Download result[1-5], 0 for none: "))
+        choice = int(raw_input("Download result[1-6], 0 for none: "))
     except ValueError:
         print("Invalid response. Adios!")
         exit()
@@ -285,7 +287,7 @@ def fetchresult(query):
     if choice == 0:
         print("Adios!")
         exit()
-    elif 0 < choice <= 5:
+    elif 0 < choice <= 6:
         return meta_data_list[choice-1:choice]
     else:
         print("Invalid response. Adios!")
@@ -320,6 +322,7 @@ def main():
     elif result.l:
         downloadmusic(result.l[0], [])
 
+    print("Downloaded.")
 
 if __name__ == '__main__':
     main()
