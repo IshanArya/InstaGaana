@@ -1,5 +1,7 @@
 # InstaGaana
 
+## No longer supported/updated!
+
 ![Imgur](http://i.imgur.com/opFLFOW.png?5)
 ## A Music Downloader for Saavn.
 #### InstaGaana downloads best quality music (320kbps) offered by Saavn along with tags (title, artists, album and artwork).
