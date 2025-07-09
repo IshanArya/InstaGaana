@@ -43,7 +43,6 @@ def extractdata(url, html_doc, meta_data_list):
 
     # Removes quotes from Title name.
     html_doc = re.sub(r'\(From .*?\)', "", html_doc.decode('utf-8'))
-    # Visit https://github.com/LinuxSDA/InstaGaana/issues/2 for more info.
 
     soup = BeautifulSoup(html_doc, 'html.parser')
 
@@ -200,7 +199,6 @@ def downloadmusic(url, meta_data_list):
         if meta_data_list == [] or meta_data_list[0] == {}:
             print("Can't extract meta data.")
             print("Make sure the url is complete and belongs to a song (not album) on saavn.com.")
-            print("Otherwise, Report bug at LinuxSDA@gmail.com")
             exit()
 
     mp3_file = None
@@ -308,8 +306,6 @@ def main():
 
     if len(argv) == 1:
         parser.print_help()
-        print("\nDeveloper: Sumit Dhingra, ", end='')
-        print("https://github.com/LinuxSDA/")
 
     result = parser.parse_args()
 

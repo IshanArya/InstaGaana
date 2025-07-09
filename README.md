@@ -45,7 +45,6 @@ For Python 3.4:
     -s S [S ...]  Name of song.
     -l L          Song link.
 
-    Developer: Sumit Dhingra, https://github.com/LinuxSDA/
 
 ---
 ### Destination:
@@ -62,15 +61,8 @@ For Python 3.4:
     Current directory
 
 
-#### Backend Algorithm and Python Script: [Sumit Dhingra](https://github.com/LinuxSDA)
-
-#### Android App: [Shashank Mishra](https://github.com/shkcodes)
 
 ---
-
-### Download the Android app [here](https://github.com/LinuxSDA/InstaGaana/releases/download/1.3.5/InstaGaana_v1.3.5.apk) or Go to release section for latest version.
-
-Android repo available [here](https://github.com/shkcodes/InstaGaana-Android)
 
 
 ### Disclaimer
@@ -78,8 +70,6 @@ Android repo available [here](https://github.com/shkcodes/InstaGaana-Android)
 Downloading copyrighted material may be illegal in your country. Use at your own risk.
 
 ### MIT LICENSE
-
-Copyright (c) 2017 Sumit Dhingra
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
